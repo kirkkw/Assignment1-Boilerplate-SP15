@@ -12,7 +12,7 @@ var dotenv = require('dotenv');
 var Instagram = require('instagram-node-lib');
 var mongoose = require('mongoose');
 var app = express();
-
+var index = require('./routes/index'); 
 //local dependencies
 var models = require('./models');
 
@@ -111,6 +111,8 @@ function ensureAuthenticated(req, res, next) {
 }
 
 //routes
+app.get('/', index.view);
+
 app.get('/', function(req, res){
   res.render('login');
 });
