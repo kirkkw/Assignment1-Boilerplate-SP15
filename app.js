@@ -74,7 +74,13 @@ passport.use(new InstagramStrategy({
       "name": profile.username,
       "id": profile.id,
       "access_token": accessToken 
-    }, function(err, user, created) {
+    }, 
+    /*function(err, user) {
+      //TODO maybe add nexttick here      
+      if (err) { return done(err); }
+      done(null, user);
+    }*/
+    function(err, user, created) {
       
       // created will be true here
       models.User.findOrCreate({}, function(err, user, created) {
@@ -100,7 +106,7 @@ passport.use(new FacebookStrategy({
   function(accessToken, refreshToken, profile, done) {
     models.User.findOrCreate({
       //don't know if this is supposed to be here
-      "name":profile.username,
+      "name":profile.displayName,
       "id":profile.id,
       "access_token":accessToken
     }, function(err, user) {
@@ -156,6 +162,14 @@ app.get('/account', ensureAuthenticated, function(req, res){
   res.render('account', {user: req.user});
 });
 
+app.get('/instagramAuth', ensureAuthenticated, function(req, res){
+  res.render('instagramAuth', {user: req.user});
+});
+
+app.get('/facebookAuth', ensureAuthenticated, function(req, res){
+  res.render('facebookAuth', {user: req.user});
+});
+
 app.get('/photos', ensureAuthenticated, function(req, res){
   var query  = models.User.where({ name: req.user.username });
   query.findOne(function (err, user) {
@@ -170,19 +184,20 @@ app.get('/photos', ensureAuthenticated, function(req, res){
             //create temporary json object
             tempJSON = {};
             tempJSON.url = item.images.low_resolution.url;
+            tempJSON.caption=item.caption.text;
             //insert json object into image array
             return tempJSON;
           });
           res.render('photos', {photos: imageArr});
         }
       }); 
-      FBGraph();
+      //FBGraph();
     }
   });
 });
 
 app.get('/auth/facebook',
-  passport.authenticate('facebook', {scope: 'public_profile'}),
+  passport.authenticate('facebook', {scope: 'public_profile', failureRedirect: '/login'}),
   function(req, res){
     // The request will be redirected to Facebook for authentication, so this
     // function will not be called.
@@ -208,15 +223,15 @@ app.get('/auth/instagram',
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
 app.get('/auth/instagram/callback', 
-  passport.authenticate('instagram', { failureRedirect: '/login'}),
+  passport.authenticate('instagram', {failureRedirect: '/login'}),
   function(req, res) {
-    res.redirect('/account');
+    res.redirect('/instagramAuth');
   });
 
 app.get('/auth/facebook/callback', 
-  passport.authenticate('facebook', { scope: ['public_profile','user_photos', 'read_stream'], failureRedirect: '/login'}),
+  passport.authenticate('facebook', { scope: ['user_photos', 'read_stream'], failureRedirect: '/login'}),
   function(req, res) {
-    res.redirect('/account');
+    res.redirect('/facebookAuth');
     console.log(req.user);
   });
 
