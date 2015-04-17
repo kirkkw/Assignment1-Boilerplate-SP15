@@ -1,5 +1,10 @@
+<div class="container">
 <a href="/logout">Logout</a>
-{{#each photos}}
-  <img src="{{url}}" class="img-responsive" class="img hashtag-img">
-  <p> {{caption}}</p>
+		{{#each photos}}
+		<div class = "col-md-3">
+		  <img src="{{url}}" class="img-responsive" class="img hashtag-img">
+		  <p> {{caption}}</p>
+		</div>
 {{/each}}
+
+</div>
