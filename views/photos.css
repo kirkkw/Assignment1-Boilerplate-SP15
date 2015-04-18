@@ -1,0 +1,18 @@
+
+
+.floated_img
+{
+    float: left;
+}
+
+.grid_element {
+  float: right;
+  width: 200px;
+  height:200px;
+  zoom: 1;         /* for IE */
+  display*:inline; /* for IE */
+}
+
+p {
+	background-color: green;
+}

@@ -16,7 +16,7 @@ var index = require('./routes/index');
 //local dependencies
 var models = require('./models');
 var FacebookStrategy = require('passport-facebook').Strategy;
-var FBGraph = require('fbgraph');
+var graph = require('fbgraph');
 
 //client id and client secret here, taken from .env
 dotenv.load();
@@ -32,8 +32,8 @@ var FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
 var FACEBOOK_CALLBACK_URL = process.env.FACEBOOK_CALLBACK_URL;
 var FACEBOOK_ACCESS_TOKEN = "";
 
-FBGraph.setAccessToken('client_id', FACEBOOK_APP_ID);
-FBGraph.setAccessToken('client_secret',  FACEBOOK_APP_SECRET);
+graph.setAccessToken('client_id', FACEBOOK_APP_ID);
+graph.setAccessToken('client_secret',  FACEBOOK_APP_SECRET);
 
 //connect to database
 mongoose.connect(process.env.MONGODB_CONNECTION_URL);
@@ -105,12 +105,10 @@ passport.use(new FacebookStrategy({
   },
   function(accessToken, refreshToken, profile, done) {
     models.User.findOrCreate({
-      //don't know if this is supposed to be here
       "name":profile.displayName,
       "id":profile.id,
       "access_token":accessToken
-    }, function(err, user) {
-      //TODO maybe add nexttick here      
+    }, function(err, user) {    
       if (err) { return done(err); }
       done(null, user);
     });
@@ -196,8 +194,35 @@ app.get('/photos', ensureAuthenticated, function(req, res){
   });
 });
 
+app.get('/fbPhotos', ensureAuthenticated, function(req, res){
+  graph.setAccessToken(req.user.access_token);
+  var query  = models.User.where({ name: req.user.username });
+  query.findOne(function (err, user) {
+    if (err) return handleError(err);
+    if (user) {
+       /*access_token: user.access_token,
+        complete: function(data) {*/
+      // doc may be null if no document matched
+      graph.get('/' + user.id + '/photos', function(err, data){
+       
+          //Map will iterate through the returned data obj
+          var imageArr = data.data.map(function(item) {
+            //create temporary json object
+            tempJSON = {};
+            tempJSON.url = item.picture;
+            tempJSON.caption=item.message;
+            //insert json object into image array
+            return tempJSON;
+          });
+          res.render('photos', {photos: imageArr});
+        
+      }); 
+      //FBGraph();
+    }
+  });
+});
 app.get('/auth/facebook',
-  passport.authenticate('facebook', {scope: 'public_profile', failureRedirect: '/login'}),
+  passport.authenticate('facebook', {scope: ['public_profile', 'user_photos', 'read_stream'], failureRedirect: '/login'}),
   function(req, res){
     // The request will be redirected to Facebook for authentication, so this
     // function will not be called.
@@ -229,7 +254,7 @@ app.get('/auth/instagram/callback',
   });
 
 app.get('/auth/facebook/callback', 
-  passport.authenticate('facebook', { scope: ['user_photos', 'read_stream'], failureRedirect: '/login'}),
+  passport.authenticate('facebook', {failureRedirect: '/login'}),
   function(req, res) {
     res.redirect('/facebookAuth');
     console.log(req.user);

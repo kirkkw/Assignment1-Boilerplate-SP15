@@ -1,4 +1,44 @@
+<style>
+table, th, td {
+    border: 1px solid black;
+}
+
+a {
+	color: black; 
+}
+
+</style>
+
+<div class="row">
+<div align = "center">
+<h1>
 Welcome to Facebook
-<p>ID: {{user.id}}</p>
-<p>Name:{{user.name}}</p>
-<a href="/logout">Logout</a>
+</h1>
+</div>
+</div>
+
+<div class="row">
+	<div align = "center">
+		<table>
+		<tr> 
+			<td> ID </td>
+			<td> {{user.id}} </td>
+		</tr>
+
+		<tr> 
+			<td> Username </td>
+			<td> {{user.name}} </td>
+		</tr>
+
+		</table>
+
+		<br> 
+
+
+		<button type="button" class="btn btn-primary"><a href="/fbPhotos">View Photos</a></button>
+		<button type="button" class="btn btn-primary"><a href="/logout">Logout</a></button>
+
+	</div>
+</div>
+
+

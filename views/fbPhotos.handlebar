@@ -1,0 +1,19 @@
+<style>
+	a {
+	color: black; 
+}
+</style>
+
+		{{#each photos}}
+
+		  <img src="{{url}}" class="img-responsive" class="img hashtag-img">
+		  <p> {{caption}}</p>
+
+{{/each}}
+
+<div class="row">
+	<div align = "center">
+		<button type="button" class="btn btn-primary"><a href="/logout">Logout</a></button>
+	</div>
+</div>
+

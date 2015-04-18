@@ -1,5 +1,11 @@
+<style>
+	a {
+	color: black; 
+}
+</style>
+
+
 <div class="container">
-<a href="/logout">Logout</a>
 		{{#each photos}}
 		<div class = "col-md-3">
 		  <img src="{{url}}" class="img-responsive" class="img hashtag-img">
@@ -7,4 +13,10 @@
 		</div>
 {{/each}}
 
+</div>
+
+<div class="row">
+	<div align = "center">
+		<button type="button" class="btn btn-primary"><a href="/logout">Logout</a></button>
+	</div>
 </div>
